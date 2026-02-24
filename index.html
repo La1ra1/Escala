@@ -273,14 +273,24 @@
     .cal-cell.other-month { opacity: .3; pointer-events: none; }
 
     .cal-cell.today {
-      border-color: var(--accent);
-      color: var(--accent);
-      font-weight: 600;
+      background: linear-gradient(135deg, #1a4a8a 0%, #0f2d5e 100%);
+      border-color: #4d9fff;
+      color: #4d9fff;
+      font-weight: 700;
+      box-shadow: 0 0 8px rgba(77,159,255,0.4);
     }
+
+    .cal-cell.today .cal-num { color: #4d9fff; }
 
     .cal-cell.has-event {
       background: linear-gradient(135deg, #1e3460 0%, #162646 100%);
       border-color: var(--accent);
+    }
+
+    .cal-cell.today.has-event {
+      background: linear-gradient(135deg, #1a4a8a 0%, #0f2d5e 100%);
+      border-color: #4d9fff;
+      box-shadow: 0 0 10px rgba(77,159,255,0.6);
     }
 
     .cal-cell.has-event .cal-num { color: var(--accent2); font-weight: 700; }
@@ -700,7 +710,7 @@
       Com serviço
     </div>
     <div class="legend-item">
-      <div class="legend-dot" style="border:1.5px solid var(--accent);background:transparent"></div>
+      <div class="legend-dot" style="border:1.5px solid #4d9fff;background:rgba(77,159,255,0.2)"></div>
       Hoje
     </div>
   </div>
