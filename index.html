@@ -1,0 +1,1184 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="theme-color" content="#0a1628" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Escalante" />
+  <meta http-equiv="Content-Security-Policy" content="default-src * 'unsafe-inline' 'unsafe-eval' data: blob:;">
+  <title>Escalante — Calendário de Serviços</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@300;400;600;700&family=Barlow:wght@300;400&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg:        #0a1628;
+      --surface:   #111f3a;
+      --surface2:  #162646;
+      --border:    #1e3460;
+      --accent:    #c5a832;
+      --accent2:   #e8c840;
+      --text:      #e8eaf0;
+      --muted:     #7a8aaa;
+      --danger:    #e05252;
+      --radius:    12px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Barlow', sans-serif;
+      font-weight: 400;
+      min-height: 100dvh;
+      overflow-x: hidden;
+    }
+
+    /* ── HEADER ── */
+    header {
+      background: linear-gradient(160deg, #0f2040 0%, #0a1628 100%);
+      border-bottom: 1px solid var(--border);
+      padding: 16px 20px 12px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .header-badge {
+      width: 40px; height: 40px;
+      background: var(--accent);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px;
+      flex-shrink: 0;
+    }
+
+    header h1 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 28px;
+      letter-spacing: 3px;
+      color: var(--accent);
+      line-height: 1;
+    }
+
+    header p {
+      font-size: 11px;
+      color: var(--muted);
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 300;
+    }
+
+    /* ── LOAD SECTION ── */
+    #load-section {
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px;
+    }
+
+    .card-title {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 700;
+      font-size: 13px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 10px;
+    }
+
+    input[type="file"] { display: none; }
+
+    .btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 14px 20px;
+      border-radius: 8px;
+      border: none;
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 600;
+      font-size: 15px;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all .18s ease;
+      width: 100%;
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: #0a1628;
+    }
+    .btn-primary:active { transform: scale(.97); background: var(--accent2); }
+
+    .btn-outline {
+      background: transparent;
+      color: var(--accent);
+      border: 1.5px solid var(--accent);
+    }
+    .btn-outline:active { background: rgba(197,168,50,.1); }
+
+    .url-input {
+      width: 100%;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      font-family: 'Barlow', sans-serif;
+      font-size: 13px;
+      padding: 10px 14px;
+      margin-bottom: 8px;
+      outline: none;
+    }
+    .url-input:focus { border-color: var(--accent); }
+
+    .url-help {
+      font-size: 11px;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    /* ── FILTER ── */
+    #filter-section {
+      padding: 0 20px 16px;
+      display: none;
+    }
+
+    .filter-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .filter-label {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 600;
+      font-size: 12px;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--muted);
+      flex-shrink: 0;
+    }
+
+    select {
+      flex: 1;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 600;
+      font-size: 15px;
+      padding: 8px 12px;
+      outline: none;
+      appearance: none;
+      -webkit-appearance: none;
+      cursor: pointer;
+    }
+    select:focus { border-color: var(--accent); }
+
+    /* ── CALENDAR ── */
+    #calendar-section {
+      padding: 0 20px 20px;
+      display: none;
+    }
+
+    .cal-nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
+    }
+
+    .cal-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 26px;
+      letter-spacing: 2px;
+      color: var(--accent);
+    }
+
+    .nav-btn {
+      width: 38px; height: 38px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 50%;
+      color: var(--text);
+      font-size: 18px;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer;
+      transition: .15s;
+    }
+    .nav-btn:active { background: var(--surface2); transform: scale(.94); }
+
+    .cal-grid-header {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 4px;
+      margin-bottom: 4px;
+    }
+
+    .cal-day-name {
+      text-align: center;
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 600;
+      font-size: 11px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: var(--muted);
+      padding: 6px 0;
+    }
+
+    .cal-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 4px;
+    }
+
+    .cal-cell {
+      aspect-ratio: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      border-radius: 8px;
+      cursor: pointer;
+      position: relative;
+      transition: .15s;
+      font-size: 14px;
+      font-weight: 300;
+      border: 1.5px solid transparent;
+    }
+
+    .cal-cell.other-month { opacity: .3; pointer-events: none; }
+
+    .cal-cell.today {
+      border-color: var(--accent);
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    .cal-cell.has-event {
+      background: linear-gradient(135deg, #1e3460 0%, #162646 100%);
+      border-color: var(--accent);
+    }
+
+    .cal-cell.has-event .cal-num { color: var(--accent2); font-weight: 700; }
+
+    .cal-cell .event-dot {
+      width: 5px; height: 5px;
+      background: var(--accent);
+      border-radius: 50%;
+      margin-top: 2px;
+    }
+
+    .cal-cell:active { transform: scale(.93); }
+
+    /* ── EVENT PANEL (bottom sheet) ── */
+    #event-panel {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      background: var(--surface);
+      border-top: 2px solid var(--accent);
+      border-radius: 18px 18px 0 0;
+      padding: 0 0 env(safe-area-inset-bottom);
+      transform: translateY(100%);
+      transition: transform .3s cubic-bezier(.4,0,.2,1);
+      z-index: 200;
+      max-height: 70dvh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    #event-panel.open { transform: translateY(0); }
+
+    .panel-handle {
+      width: 40px; height: 4px;
+      background: var(--border);
+      border-radius: 2px;
+      margin: 12px auto 0;
+    }
+
+    .panel-header {
+      padding: 14px 20px 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .panel-date {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 22px;
+      letter-spacing: 2px;
+      color: var(--accent);
+    }
+
+    .panel-close {
+      width: 32px; height: 32px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 50%;
+      color: var(--muted);
+      font-size: 16px;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer;
+    }
+
+    .panel-events {
+      overflow-y: auto;
+      flex: 1;
+      padding: 14px 20px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .event-item {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-left: 4px solid var(--accent);
+      border-radius: 10px;
+      padding: 12px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .event-tipo {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 700;
+      font-size: 16px;
+      letter-spacing: .5px;
+      color: var(--accent2);
+    }
+
+    .event-local {
+      font-size: 13px;
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .event-nome {
+      font-size: 13px;
+      color: var(--text);
+      margin-top: 4px;
+      font-weight: 300;
+    }
+
+    /* ── BACKDROP ── */
+    #backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.5);
+      z-index: 150;
+      display: none;
+      backdrop-filter: blur(2px);
+    }
+    #backdrop.visible { display: block; }
+
+    /* ── STATUS ── */
+    #status {
+      padding: 12px 20px;
+      font-size: 13px;
+      color: var(--muted);
+      text-align: center;
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 300;
+      letter-spacing: 1px;
+    }
+
+    .status-ok { color: #4caf82 !important; }
+    .status-err { color: var(--danger) !important; }
+
+    /* ── LOADING spinner ── */
+    .spinner {
+      display: inline-block;
+      width: 16px; height: 16px;
+      border: 2px solid rgba(197,168,50,.3);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin .7s linear infinite;
+      vertical-align: middle;
+      margin-right: 6px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── LEGEND ── */
+    .legend {
+      display: flex; gap: 12px; flex-wrap: wrap;
+      padding: 0 20px 16px;
+    }
+    .legend-item {
+      display: flex; align-items: center; gap: 6px;
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 12px;
+      color: var(--muted);
+      letter-spacing: .5px;
+    }
+    .legend-dot {
+      width: 10px; height: 10px;
+      border-radius: 2px;
+    }
+
+    /* ── EVENT COUNT BADGE ── */
+    .event-count {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 700;
+      font-size: 11px;
+      background: var(--accent);
+      color: #0a1628;
+      border-radius: 10px;
+      padding: 1px 5px;
+      margin-top: 2px;
+      line-height: 1.4;
+    }
+
+    /* ── EVENT CARD HEADER ── */
+    .event-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 6px;
+    }
+
+    .event-tipo-badge {
+      display: inline-block;
+      background: linear-gradient(135deg, var(--accent) 0%, var(--accent2) 100%);
+      color: #0a1628;
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 700;
+      font-size: 13px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      padding: 4px 10px;
+      border-radius: 6px;
+    }
+
+    .event-local {
+      font-size: 14px;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-weight: 400;
+    }
+
+    .event-local span {
+      color: var(--text);
+    }
+
+    @media (min-width: 480px) {
+      #load-section, #filter-section, #calendar-section, .legend, #ordem-section { max-width: 440px; margin-inline: auto; }
+    }
+
+    /* ── TAB NAV ── */
+    .tab-nav {
+      display: flex;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 72px;
+      z-index: 90;
+    }
+
+    .tab-btn {
+      flex: 1;
+      padding: 12px 8px;
+      background: transparent;
+      border: none;
+      border-bottom: 2px solid transparent;
+      color: var(--muted);
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 600;
+      font-size: 13px;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: .15s;
+    }
+
+    .tab-btn.active {
+      color: var(--accent);
+      border-bottom-color: var(--accent);
+    }
+
+    .tab-page { display: none; }
+    .tab-page.active { display: block; }
+
+    /* ── ORDEM DE ESCALA ── */
+    #ordem-section {
+      padding: 12px 12px 80px;
+    }
+
+    .ordem-table-wrap {
+      overflow-x: auto;
+      overflow-y: auto;
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      max-height: calc(100dvh - 160px);
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .ordem-table {
+      width: max-content;
+      min-width: 100%;
+      border-collapse: collapse;
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 13px;
+    }
+
+    .ordem-table th {
+      background: var(--surface2);
+      color: var(--muted);
+      font-size: 10px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      padding: 8px 10px;
+      text-align: center;
+      white-space: nowrap;
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+    }
+
+    .ordem-table th:nth-child(2) { text-align: left; }
+
+    .ordem-table td {
+      padding: 8px 10px;
+      border-bottom: 1px solid rgba(30,52,96,.5);
+      white-space: nowrap;
+      color: var(--text);
+      text-align: center;
+    }
+
+    .ordem-table tr:last-child td { border-bottom: none; }
+    .ordem-table tr:nth-child(even) td { background: rgba(22,38,70,.35); }
+    .ordem-table tr:hover td { background: rgba(197,168,50,.07); }
+
+    .ordem-table .rank-num {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 16px;
+      color: var(--accent);
+      width: 28px;
+      padding: 8px 6px;
+    }
+
+    .ordem-table .nome-cell {
+      font-weight: 600;
+      font-size: 14px;
+      letter-spacing: .5px;
+      text-align: left;
+      padding-left: 12px;
+    }
+
+    .ordem-table .num-cell {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .ordem-table .ultimo-cell {
+      color: var(--muted);
+      font-size: 12px;
+      letter-spacing: .5px;
+    }
+
+    .ordem-empty {
+      text-align: center;
+      padding: 40px 20px;
+      color: var(--muted);
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 15px;
+      letter-spacing: 1px;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="header-badge">🎖️</div>
+  <div>
+    <h1>Escalante</h1>
+    <p>Calendário de Serviços da Tropa</p>
+  </div>
+</header>
+
+<!-- LOAD SECTION -->
+<div id="load-section">
+  <div class="card">
+    <div class="card-title">📋 Escala da Tropa</div>
+    <button class="btn btn-primary" onclick="loadFromUrl()">
+      🔄 Atualizar Escala
+    </button>
+    <div style="margin-top:10px; text-align:center">
+      <input type="file" id="file-input" accept=".xlsx,.xls" />
+      <label for="file-input" style="font-size:12px; color:var(--muted); cursor:pointer; text-decoration:underline">
+        ou carregar arquivo local
+      </label>
+    </div>
+  </div>
+
+</div>
+
+<div id="status"></div>
+
+<!-- PROXY INSTRUCTIONS (shown only on failure) -->
+<div id="proxy-instructions" style="display:none; padding: 0 20px 20px;">
+  <div class="card" style="border-color:#c5a832">
+    <div class="card-title" style="color:var(--accent)">⚙️ Como configurar o proxy (1x só)</div>
+    <div style="font-size:13px; color:var(--text); line-height:1.8;">
+      <b style="color:var(--accent2)">1.</b> Acesse
+      <a href="https://script.google.com" target="_blank"
+         style="color:var(--accent);text-decoration:underline">script.google.com</a><br>
+      <b style="color:var(--accent2)">2.</b> Clique em <b>Novo projeto</b><br>
+      <b style="color:var(--accent2)">3.</b> Cole o código abaixo e salve<br>
+      <b style="color:var(--accent2)">4.</b> Clique em <b>Implantar → Nova implantação</b><br>
+      &nbsp;&nbsp;&nbsp;&nbsp;Tipo: <b>App da Web</b> · Acesso: <b>Qualquer pessoa</b><br>
+      <b style="color:var(--accent2)">5.</b> Copie a URL gerada e cole no código do app em <b>GAS_PROXY_URL</b>
+    </div>
+    <div style="margin-top:12px; background:var(--bg); border-radius:8px; padding:10px; font-family:monospace; font-size:11px; color:#8be0a0; overflow-x:auto; white-space:pre;">function doGet(e) {
+  var fileId = '1zKq4e8s_6jLcL4SSVGEf_uWgNaA2R9y2';
+  var url = 'https://drive.google.com/uc?export=download&id=' + fileId;
+  var response = UrlFetchApp.fetch(url, {followRedirects: true, muteHttpExceptions: true});
+  var blob = response.getBlob();
+  var b64 = Utilities.base64Encode(blob.getBytes());
+  return ContentService
+    .createTextOutput(b64)
+    .setMimeType(ContentService.MimeType.TEXT);
+}</div>
+    <div style="font-size:11px; color:var(--muted); margin-top:8px;">
+      ⚠️ Após configurar, atualize também a constante <code style="color:var(--accent)">GAS_PROXY_URL</code> no código do app.
+    </div>
+  </div>
+</div>
+
+<!-- TAB NAV (shown after load) -->
+<div class="tab-nav" id="tab-nav" style="display:none">
+  <button class="tab-btn active" onclick="switchTab('calendario')">📅 Calendário</button>
+  <button class="tab-btn" onclick="switchTab('ordem')">🏆 Ordem de Escala</button>
+</div>
+
+<!-- PAGE: CALENDÁRIO -->
+<div class="tab-page active" id="page-calendario">
+
+  <!-- FILTER -->
+  <div id="filter-section">
+    <div class="filter-card">
+      <span class="filter-label">👤 Cadete</span>
+      <select id="cadete-select" onchange="renderCalendar()">
+        <option value="">— Todos —</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- LEGEND -->
+  <div class="legend" id="legend-section" style="display:none">
+    <div class="legend-item">
+      <div class="legend-dot" style="background:var(--accent);border:1px solid var(--accent)"></div>
+      Com serviço
+    </div>
+    <div class="legend-item">
+      <div class="legend-dot" style="border:1.5px solid var(--accent);background:transparent"></div>
+      Hoje
+    </div>
+  </div>
+
+  <!-- CALENDAR -->
+  <div id="calendar-section">
+    <div class="cal-nav">
+      <button class="nav-btn" onclick="changeMonth(-1)">‹</button>
+      <div class="cal-title" id="cal-title">—</div>
+      <button class="nav-btn" onclick="changeMonth(1)">›</button>
+    </div>
+    <div class="cal-grid-header" id="cal-grid-header"></div>
+    <div class="cal-grid" id="cal-grid"></div>
+  </div>
+
+</div>
+
+<!-- PAGE: ORDEM DE ESCALA -->
+<div class="tab-page" id="page-ordem">
+  <div id="ordem-section">
+    <div class="ordem-table-wrap">
+      <table class="ordem-table" id="ordem-table">
+        <thead id="ordem-thead">
+          <tr>
+            <th>#</th>
+            <th>Nome de Guerra</th>
+            <th>Qtd Serviços</th>
+            <th>Peso Escala</th>
+            <th>Nº</th>
+            <th>Último Serviço</th>
+          </tr>
+        </thead>
+        <tbody id="ordem-tbody">
+          <tr><td colspan="6" class="ordem-empty">Carregue a escala para ver a ordem.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- BACKDROP -->
+<div id="backdrop" onclick="closePanel()"></div>
+
+<!-- EVENT PANEL -->
+<div id="event-panel">
+  <div class="panel-handle"></div>
+  <div class="panel-header">
+    <div class="panel-date" id="panel-date">—</div>
+    <div class="panel-close" onclick="closePanel()">✕</div>
+  </div>
+  <div class="panel-events" id="panel-events"></div>
+</div>
+
+<!-- SheetJS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+<script>
+// ── STATE ──────────────────────────────────────────────────
+let servicos = [];      // [{ data, tipo, local, nome, peso, aquartelado }]
+let cadetes  = [];      // [{ nome, pos, disponibilidade }]
+let currentDate = new Date();
+let selectedCadete = "";
+
+const MESES = ["Janeiro","Fevereiro","Março","Abril","Maio","Junho",
+               "Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"];
+const DIAS  = ["Dom","Seg","Ter","Qua","Qui","Sex","Sáb"];
+
+// ── HELPERS ─────────────────────────────────────────────────
+const norm = s => String(s).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+
+// ── PARSE EXCEL ─────────────────────────────────────────────
+//
+// Espelha exatamente o código Python:
+//   OPERACIONAL : usecols='C:J', skiprows=5  → cabeçalho na linha 6 (índice 5)
+//   CADETES     : usecols='B:G', skiprows=1  → cabeçalho na linha 2 (índice 1)
+//
+// Colunas usadas: row['Data'], row['Tipo'], row['Local'], row['Nome']
+// Colunas cadetes: cadetes['NOME_DE_GUERRA']
+
+function parseExcel(buffer) {
+  const wb = XLSX.read(buffer, { type: 'array', cellDates: true });
+
+  // ── OPERACIONAL ──────────────────────────────────────────
+  // usecols='C:J' → índices absolutos 2–9 no array bruto
+  // skiprows=5    → linha de índice 5 é o cabeçalho; dados a partir de índice 6
+  const wsOp  = wb.Sheets['OPERACIONAL'];
+  const rawOp = XLSX.utils.sheet_to_json(wsOp, { header: 1, raw: true, defval: '' });
+
+  const OP_COL_START = (rawOp[5] || []).findIndex(h => norm(String(h)) === 'data');
+  const OP_COL_END   = OP_COL_START + 7;
+  console.log('OPERACIONAL col start:', OP_COL_START);
+
+  const headerRow = rawOp[5] || [];
+  const headers   = headerRow.slice(OP_COL_START, OP_COL_END + 1).map(h => String(h).trim());
+  console.log('OPERACIONAL headers (C:J):', headers);
+
+  // Localiza coluna pelo nome, normalizado (sem acento, lowercase)
+  function opCol(name) {
+    const i = headers.findIndex(h => norm(h) === norm(name));
+    return i === -1 ? -1 : OP_COL_START + i;
+  }
+
+  const iData        = opCol('Data');
+  const iTipo        = opCol('Tipo');
+  const iLocal       = opCol('Local');
+  const iNome        = opCol('Nome');
+  const iPeso        = opCol('Peso Escala');
+  const iAquartelado = opCol('Aquartelado');
+  console.log('Data:', iData, 'Tipo:', iTipo, 'Local:', iLocal, 'Nome:', iNome, 'Peso:', iPeso, 'Aquartelado:', iAquartelado);
+
+  servicos = [];
+  const dataRows = rawOp.slice(6).filter(r => r.some(c => c !== ''));
+  for (const row of dataRows) {
+    const data        = iData        >= 0 ? parseDate(row[iData])                    : null;
+    const tipo        = iTipo        >= 0 ? String(row[iTipo]        || '').trim()   : '';
+    const local       = iLocal       >= 0 ? String(row[iLocal]       || '').trim()   : '';
+    const nome        = iNome        >= 0 ? String(row[iNome]        || '').trim()   : '';
+    const peso        = iPeso        >= 0 ? (parseFloat(row[iPeso])  || 0)           : 0;
+    const aquartelado = iAquartelado >= 0 ? String(row[iAquartelado] || '').trim().toUpperCase() : '';
+    if (!data || !nome) continue;
+    servicos.push({ data, tipo, local, nome, peso, aquartelado });
+  }
+
+  // ── CADETES ──────────────────────────────────────────────
+  // usecols='B:G' → índices absolutos 1–6 no array bruto
+  // skiprows=1    → cabeçalho na linha de índice 1; dados a partir de índice 2
+  const wsCad     = wb.Sheets['CADETES'];
+  const rawCad    = XLSX.utils.sheet_to_json(wsCad, { header: 1, raw: true, defval: '' });
+  // Detecta automaticamente qual linha é o cabeçalho procurando por NOME_DE_GUERRA
+  let cadHeaderRowIdx = -1;
+  for (let i = 0; i < Math.min(rawCad.length, 5); i++) {
+    const row = rawCad[i] || [];
+    if (row.some(c => norm(String(c)) === 'nome_de_guerra')) {
+      cadHeaderRowIdx = i;
+      break;
+    }
+  }
+  if (cadHeaderRowIdx === -1) cadHeaderRowIdx = 0; // fallback
+
+  const cadHeaderRaw = rawCad[cadHeaderRowIdx] || [];
+  // Monta mapa nome→índice absoluto para toda a linha
+  const cadColMap = {};
+  cadHeaderRaw.forEach((h, i) => { cadColMap[norm(String(h))] = i; });
+  console.log('CADETES header detectada na linha:', cadHeaderRowIdx, cadColMap);
+
+  function cadCol(name) {
+    const k = norm(name);
+    return k in cadColMap ? cadColMap[k] : -1;
+  }
+
+  const iNomeGuerra    = cadCol('NOME_DE_GUERRA');
+  const iPos           = cadCol('POS');
+  const iDisponib      = cadCol('DISPONIBILIDADE');
+  console.log('NOME_DE_GUERRA índice:', iNomeGuerra, 'POS:', iPos, 'DISPONIBILIDADE:', iDisponib);
+
+  cadetes = rawCad.slice(cadHeaderRowIdx + 1)
+    .map(r => ({
+      nome:            iNomeGuerra >= 0 ? String(r[iNomeGuerra] || '').trim() : '',
+      pos:             iPos        >= 0 ? (parseFloat(r[iPos])  || 0)         : 0,
+      disponibilidade: iDisponib   >= 0 ? String(r[iDisponib]   || '').trim().toUpperCase() : '',
+    }))
+    .filter(c => c.nome);
+
+  populateCadeteSelect();
+  showApp();
+  setStatus(`✅ ${servicos.length} serviços · ${cadetes.length} cadetes carregados.`, 'ok');
+}
+
+function parseDate(val) {
+  if (!val && val !== 0) return null;
+
+  // SheetJS com cellDates:true já pode retornar Date
+  if (val instanceof Date) return isNaN(val) ? null : val;
+
+  // Número serial do Excel (ex: 45123.0)
+  if (typeof val === 'number') {
+    // Fórmula: dias desde 1900-01-00 (com bug do ano bissexto do Lotus)
+    const d = new Date(Math.round((val - 25569) * 86400 * 1000));
+    return isNaN(d) ? null : d;
+  }
+
+  const s = String(val).trim();
+
+  // dd/mm/yyyy ou d/m/yyyy
+  let m = /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/.exec(s);
+  if (m) return new Date(`${m[3]}-${m[2].padStart(2,'0')}-${m[1].padStart(2,'0')}`);
+
+  // yyyy-mm-dd
+  m = /^(\d{4})-(\d{2})-(\d{2})/.exec(s);
+  if (m) return new Date(`${m[1]}-${m[2]}-${m[3]}`);
+
+  // Fallback genérico
+  const d = new Date(s);
+  return isNaN(d) ? null : d;
+}
+
+// ── LOAD FILE ───────────────────────────────────────────────
+document.getElementById('file-input').addEventListener('change', function(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  setStatus('<span class="spinner"></span> Lendo arquivo...', '');
+  const reader = new FileReader();
+  reader.onload = ev => {
+    try { parseExcel(new Uint8Array(ev.target.result)); }
+    catch(err) { setStatus('❌ Erro ao ler arquivo: ' + err.message, 'err'); }
+  };
+  reader.readAsArrayBuffer(file);
+});
+
+const GAS_PROXY_URL = 'https://script.google.com/macros/s/AKfycby7UV17AjO8s8oCvPdYweRm2BBeLOwcJQstnNVnAxk4ha8vfKANpjcavihBddgyDDmXjw/exec';
+
+function loadFromUrl() {
+  setStatus('<span class="spinner"></span> Carregando escala...', '');
+
+  const url = GAS_PROXY_URL + '?t=' + Date.now();
+
+  fetch(url)
+    .then(res => {
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      return res.text();
+    })
+    .then(text => {
+      // O GAS pode retornar base64 puro ou wrapped em callback(__gasCb("..."))
+      let base64 = text.trim();
+
+      // Remove wrapper de JSONP se presente
+      const m = base64.match(/^[\w.]+\((".*")\)$/s);
+      if (m) {
+        try { base64 = JSON.parse(m[1]); } catch(e) {}
+      }
+
+      if (!base64 || base64.length < 100) throw new Error('Dados vazios');
+      const binary = atob(base64);
+      const buf = new Uint8Array(binary.length);
+      for (let i = 0; i < binary.length; i++) buf[i] = binary.charCodeAt(i);
+      parseExcel(buf);
+    })
+    .catch(err => {
+      setStatus('❌ Falha ao conectar: ' + err.message + '. Use <b>📂 carregar arquivo local</b>.', 'err');
+    });
+}
+
+// ── UI HELPERS ──────────────────────────────────────────────
+function setStatus(msg, cls) {
+  const el = document.getElementById('status');
+  el.innerHTML = msg;
+  el.className = cls === 'ok' ? 'status-ok' : cls === 'err' ? 'status-err' : '';
+}
+
+function showApp() {
+  document.getElementById('tab-nav').style.display = 'flex';
+  document.getElementById('filter-section').style.display = 'block';
+  document.getElementById('calendar-section').style.display = 'block';
+  document.getElementById('legend-section').style.display = 'flex';
+  renderCalendar();
+  renderOrdem();
+}
+
+function switchTab(tab) {
+  document.querySelectorAll('.tab-btn').forEach((b, i) => {
+    b.classList.toggle('active', (i === 0 && tab === 'calendario') || (i === 1 && tab === 'ordem'));
+  });
+  document.getElementById('page-calendario').classList.toggle('active', tab === 'calendario');
+  document.getElementById('page-ordem').classList.toggle('active', tab === 'ordem');
+}
+
+function populateCadeteSelect() {
+  const sel = document.getElementById('cadete-select');
+  while (sel.options.length > 1) sel.remove(1);
+  const sorted = [...new Set(servicos.map(s => s.nome))].sort();
+  for (const n of sorted) {
+    const opt = document.createElement('option');
+    opt.value = n; opt.textContent = n;
+    sel.appendChild(opt);
+  }
+}
+
+// ── ORDEM DE ESCALA ─────────────────────────────────────────
+function getOrdemEscala() {
+  const disponiveis = cadetes.filter(c => c.disponibilidade !== 'INDISPONÍVEL');
+
+  // Tipos que geram colunas extras (aquartelado==SIM ou CAMPO, exceto CADETE DE DIA)
+  const tiposExtra = [...new Set(
+    servicos
+      .filter(s => (s.aquartelado === 'SIM' || s.tipo === 'CAMPO') && s.tipo !== 'CADETE DE DIA')
+      .map(s => s.tipo)
+  )].sort();
+
+  // Agrega por cadete
+  const agg = {};
+  for (const s of servicos) {
+    if (!agg[s.nome]) agg[s.nome] = { quantidade: 0, peso: 0, ultimo: null, porTipo: {} };
+    agg[s.nome].quantidade++;
+    agg[s.nome].peso += s.peso || 0;
+    if (!agg[s.nome].ultimo || s.data > agg[s.nome].ultimo) agg[s.nome].ultimo = s.data;
+    agg[s.nome].porTipo[s.tipo] = (agg[s.nome].porTipo[s.tipo] || 0) + 1;
+  }
+
+  const lista = disponiveis.map(c => {
+    const a = agg[c.nome] || { quantidade: 0, peso: 0, ultimo: null, porTipo: {} };
+    const porTipo = {};
+    for (const t of tiposExtra) porTipo[t] = a.porTipo[t] || 0;
+    return {
+      nome:       c.nome,
+      pos:        c.pos,
+      quantidade: a.quantidade,
+      peso:       a.peso,
+      ultimo:     a.ultimo,
+      porTipo,
+    };
+  });
+
+  // Ordena: Ultimo_Servico ASC → Peso ASC → POS DESC
+  lista.sort((a, b) => {
+    const ua = a.ultimo ? a.ultimo.getTime() : 0;
+    const ub = b.ultimo ? b.ultimo.getTime() : 0;
+    if (ua !== ub) return ua - ub;
+    if (a.peso !== b.peso) return a.peso - b.peso;
+    return b.pos - a.pos;
+  });
+
+  return { lista, tiposExtra };
+}
+
+function renderOrdem() {
+  const tbody = document.getElementById('ordem-tbody');
+  const thead = document.getElementById('ordem-thead');
+  const { lista, tiposExtra } = getOrdemEscala();
+
+  if (!lista.length) {
+    thead.innerHTML = `<tr>
+      <th>#</th><th>Nome de Guerra</th><th>Qtd Serviços</th>
+      <th>Peso Escala</th><th>Nº</th><th>Último Serviço</th>
+    </tr>`;
+    tbody.innerHTML = '<tr><td colspan="6" class="ordem-empty">Nenhum cadete disponível.</td></tr>';
+    return;
+  }
+
+  // Cabeçalho dinâmico
+  thead.innerHTML = `<tr>
+    <th>#</th>
+    <th>Nome de Guerra</th>
+    <th>Qtd Serviços</th>
+    <th>Peso Escala</th>
+    <th>Nº</th>
+    ${tiposExtra.map(t => `<th>${t}</th>`).join('')}
+    <th>Último Serviço</th>
+  </tr>`;
+
+  tbody.innerHTML = lista.map((o, i) => {
+    const ultimoStr = o.ultimo
+      ? o.ultimo.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' })
+      : '—';
+    return `<tr>
+      <td class="rank-num">${i + 1}</td>
+      <td class="nome-cell">${o.nome}</td>
+      <td class="num-cell">${o.quantidade}</td>
+      <td class="num-cell">${o.peso.toFixed(1)}</td>
+      <td class="num-cell">${o.pos}</td>
+      ${tiposExtra.map(t => `<td class="num-cell">${o.porTipo[t]}</td>`).join('')}
+      <td class="ultimo-cell">${ultimoStr}</td>
+    </tr>`;
+  }).join('');
+}
+
+// ── CALENDAR ────────────────────────────────────────────────
+function changeMonth(delta) {
+  currentDate = new Date(currentDate.getFullYear(), currentDate.getMonth() + delta, 1);
+  renderCalendar();
+}
+
+function renderCalendar() {
+  selectedCadete = document.getElementById('cadete-select').value;
+  const year  = currentDate.getFullYear();
+  const month = currentDate.getMonth();
+
+  document.getElementById('cal-title').textContent =
+    `${MESES[month]} ${year}`;
+
+  // Day name headers
+  const hdr = document.getElementById('cal-grid-header');
+  hdr.innerHTML = DIAS.map(d => `<div class="cal-day-name">${d}</div>`).join('');
+
+  const grid = document.getElementById('cal-grid');
+  grid.innerHTML = '';
+
+  const firstDay = new Date(year, month, 1).getDay();
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const today = new Date();
+
+  // Filter services for this month
+  const filtered = servicos.filter(s => {
+    const d = s.data;
+    return d.getFullYear() === year && d.getMonth() === month &&
+      (!selectedCadete || s.nome === selectedCadete);
+  });
+
+  // Build a map: day -> events[]
+  const evMap = {};
+  for (const s of filtered) {
+    const day = s.data.getDate();
+    if (!evMap[day]) evMap[day] = [];
+    evMap[day].push(s);
+  }
+
+  // Padding cells before
+  for (let i = 0; i < firstDay; i++) {
+    const cell = document.createElement('div');
+    cell.className = 'cal-cell other-month';
+    grid.appendChild(cell);
+  }
+
+  for (let day = 1; day <= daysInMonth; day++) {
+    const cell = document.createElement('div');
+    cell.className = 'cal-cell';
+    const isToday = today.getDate() === day && today.getMonth() === month && today.getFullYear() === year;
+    if (isToday) cell.classList.add('today');
+
+    const events = evMap[day] || [];
+    if (events.length > 0) {
+      cell.classList.add('has-event');
+      const badge = events.length > 1 ? `<div class="event-count">${events.length}</div>` : `<div class="event-dot"></div>`;
+      cell.innerHTML = `<span class="cal-num">${day}</span>${badge}`;
+      const d = new Date(year, month, day);
+      cell.addEventListener('click', () => openPanel(d, events));
+    } else {
+      cell.innerHTML = `<span class="cal-num">${day}</span>`;
+    }
+
+    grid.appendChild(cell);
+  }
+}
+
+// ── EVENT PANEL ─────────────────────────────────────────────
+function openPanel(date, events) {
+  const panel = document.getElementById('event-panel');
+  const backdrop = document.getElementById('backdrop');
+  const panelDate = document.getElementById('panel-date');
+  const panelEvents = document.getElementById('panel-events');
+
+  panelDate.textContent = date.toLocaleDateString('pt-BR', {
+    weekday: 'long', day: '2-digit', month: 'long', year: 'numeric'
+  });
+
+  panelEvents.innerHTML = '';
+  for (const ev of events) {
+    const item = document.createElement('div');
+    item.className = 'event-item';
+    item.innerHTML = `
+      <div class="event-header">
+        <span class="event-tipo-badge">${ev.tipo || '—'}</span>
+      </div>
+      <div class="event-local">📍 <span>${ev.local || '—'}</span></div>
+      ${ev.nome ? `<div class="event-nome">👤 ${ev.nome}</div>` : ''}
+    `;
+    panelEvents.appendChild(item);
+  }
+
+  backdrop.classList.add('visible');
+  requestAnimationFrame(() => panel.classList.add('open'));
+}
+
+function closePanel() {
+  document.getElementById('event-panel').classList.remove('open');
+  document.getElementById('backdrop').classList.remove('visible');
+}
+
+// ── AUTO-LOAD on startup ────────────────────────────────────
+window.addEventListener('load', () => loadFromUrl());
+
+// swipe down to close
+let touchStartY = 0;
+document.getElementById('event-panel').addEventListener('touchstart', e => {
+  touchStartY = e.touches[0].clientY;
+}, { passive: true });
+document.getElementById('event-panel').addEventListener('touchend', e => {
+  if (e.changedTouches[0].clientY - touchStartY > 60) closePanel();
+}, { passive: true });
+</script>
+</body>
+</html>
